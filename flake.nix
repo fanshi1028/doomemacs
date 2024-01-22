@@ -6,7 +6,14 @@
   };
   outputs = { self, nixpkgs, old-nixpkgs }: {
     devShells = builtins.mapAttrs (system: pkgs:
-      with pkgs;
+      let
+        # emacs-grammars = (pkgs.callPackage
+        #   "${nixpkgs}/pkgs/applications/editors/emacs/elisp-packages/manual-packages/treesit-grammars/default.nix" {
+        #     inherit pkgs;
+        #     inherit (pkgs) lib;
+        #   }).with-grammars
+        #   (grammars: with grammars; [ tree-sitter-tsx tree-sitter-typescript ]);
+      in with pkgs;
       let
         # NOTE: https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/data/fonts/nerdfonts/shas.nix
         nerd-fonts-symbol =
@@ -49,6 +56,9 @@
             if [ ! -d ${font-dest}/NerdFonts ]; then
               cp -ral ${nerd-fonts-symbol}/share/fonts/truetype/NerdFonts ${font-dest}
             fi
+            # ln -s {emacs-grammars}/lib ~/.emacs.d/.local/cache/tree-sitter
+            # echo ${tree-sitter-grammars.tree-sitter-typescript}
+            # echo ${tree-sitter-grammars.tree-sitter-tsx}
           '';
         };
       }) nixpkgs.legacyPackages;

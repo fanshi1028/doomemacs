@@ -38,6 +38,7 @@
             pass
             coreutils
             pandoc
+            emacs-lsp-booster
           ] ++ fonts
             # NOTE: for compiling vterm
             ++ [

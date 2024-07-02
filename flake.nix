@@ -39,6 +39,8 @@
             coreutils
             pandoc
             emacs-lsp-booster
+            hledger
+            djvulibre
           ] ++ fonts
             # NOTE: for compiling vterm
             ++ [

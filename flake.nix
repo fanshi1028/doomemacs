@@ -1,10 +1,7 @@
 {
-  inputs = {
-    nixpkgs.url = "nixpkgs-unstable";
-    # NOTE: for using gnupg 2.4.0, see below
-    old-nixpkgs.url = "github:Nixos/nixpkgs/nixos-23.05";
-  };
-  outputs = { self, nixpkgs, old-nixpkgs }: {
+  # inputs = { nixpkgs.url = "github:Nixos/nixpkgs"; };
+  inputs = { nixpkgs.url = "nixpkgs-unstable"; };
+  outputs = { self, nixpkgs }: {
     devShells = builtins.mapAttrs (system: pkgs:
       let
         # emacs-grammars = (pkgs.callPackage
@@ -32,9 +29,7 @@
             libvterm-neovim
             sqlite
             ledger
-            # NOTE: https://www.reddit.com/r/emacs/comments/137r7j7/gnupg_241_encryption_issues_with_emacs_orgmode/
-            # NOTE: https://dev.gnupg.org/T6481
-            old-nixpkgs.legacyPackages.${system}.gnupg
+            gnupg
             pass
             coreutils
             pandoc

@@ -33,7 +33,6 @@
             pass
             coreutils
             pandoc
-            emacs-lsp-booster
             hledger
             djvulibre
           ] ++ fonts

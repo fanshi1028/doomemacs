@@ -35,6 +35,8 @@
             pandoc
             hledger
             djvulibre
+            ffmpegthumbnailer
+            mediainfo
           ] ++ fonts
             # NOTE: for compiling vterm
             ++ [

@@ -1,12 +1,70 @@
 {
   "nodes": {
+    "my-aider": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1739516398,
+        "narHash": "sha256-845BLmCEmzSRZi8E+W3eRCjzNnyGFmKl5kcutdQMJ8M=",
+        "path": "/Users/fanshi/Personal/flakes/aider",
+        "type": "path"
+      },
+      "original": {
+        "id": "my-aider",
+        "type": "indirect"
+      }
+    },
+    "my-wg-quick": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1739894150,
+        "narHash": "sha256-KlVfY1Biy4JFkudECH0WJoSMz+yC8kT0Cx536CQN1pk=",
+        "path": "/Users/fanshi/Personal/flakes/wg-quick",
+        "type": "path"
+      },
+      "original": {
+        "id": "my-wg-quick",
+        "type": "indirect"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1729428082,
-        "narHash": "sha256-xb4/Y+Y7ZlkQaA5rXnrXplDzdt2Jfgdmar3+qkb56UA=",
+        "lastModified": 1739515405,
+        "narHash": "sha256-zvahxvOOcbXiSSyhrHFnC+6PECr/82nKPBKbb0Sms6s=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "ca30f584e18024baf39c395001262ed936f27ebd",
+        "rev": "f02405ae3669e0ed2eb6539961a2ccf841207703",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs-unstable",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1739515405,
+        "narHash": "sha256-zvahxvOOcbXiSSyhrHFnC+6PECr/82nKPBKbb0Sms6s=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f02405ae3669e0ed2eb6539961a2ccf841207703",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs-unstable",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1739515405,
+        "narHash": "sha256-zvahxvOOcbXiSSyhrHFnC+6PECr/82nKPBKbb0Sms6s=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f02405ae3669e0ed2eb6539961a2ccf841207703",
         "type": "github"
       },
       "original": {
@@ -16,7 +74,9 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "my-aider": "my-aider",
+        "my-wg-quick": "my-wg-quick",
+        "nixpkgs": "nixpkgs_3"
       }
     }
   },

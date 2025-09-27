@@ -27,6 +27,9 @@
                 emacs-lsp-booster
                 imagemagick
                 nixfmt-rfc-style
+                vips
+                epub-thumbnailer
+                poppler-utils
               ]
               # NOTE: for compiling vterm
               ++ [

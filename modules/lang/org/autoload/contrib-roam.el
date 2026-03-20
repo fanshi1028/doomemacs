@@ -55,11 +55,11 @@ If there's none, return an empty string."
 ;;;###autoload (autoload 'org-roam-node-doom-type "lang/org/autoload/contrib-roam" nil t)
 (cl-defmethod org-roam-node-doom-type ((node org-roam-node))
   "Return the directory relative to `org-roam-directory' as a note's \"type\"."
-  (when-let (dir (thread-first
-                   node
-                   (org-roam-node-file)
-                   (file-relative-name org-roam-directory)
-                   (file-name-directory)))
+  (when-let* ((dir (thread-first
+                     node
+                     (org-roam-node-file)
+                     (file-relative-name org-roam-directory)
+                     (file-name-directory))))
     (directory-file-name dir)))
 
 
@@ -71,7 +71,7 @@ If there's none, return an empty string."
   "Open or close roam backlinks buffer depending on visible org-roam buffers.
 
 Intended to be added to `doom-switch-buffer-hook' in `org-roam-find-file-hook'.
-Controlled by `+org-roam-open-buffer-on-find-file'."
+Controlled by `+org-roam-auto-backlinks-buffer'."
   (when (and +org-roam-auto-backlinks-buffer
              (not org-roam-capture--node)  ; not for roam capture buffers
              (not org-capture-mode)        ; not for capture buffers

@@ -7,4 +7,4 @@
 (package! go-gen-test :pin "af00a9abbaba2068502327ecdef574fd894a884b")
 
 (when (modulep! :checkers syntax -flymake)
-  (package! flycheck-golangci-lint :pin "38cc30eb8b3056260993bd085f5ae6bc90af177f"))
+  (package! flycheck-golangci-lint :pin "51aede797df89eeea5928df05d0f619530339152"))

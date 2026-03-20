@@ -35,7 +35,7 @@ libraries. It is the equivalent of the following shell commands:
   (let ((force? (doom-cli-context-suppress-prompts-p context)))
     (cond
      (packages?
-      ;; HACK It's messy to use straight to upgrade straight, due to the
+      ;; HACK: It's messy to use straight to upgrade straight, due to the
       ;;   potential for backwards incompatibility, so we staticly check if
       ;;   Doom's `package!' declaration for straight has changed. If it has,
       ;;   delete straight so 'doom sync' will install the new version for us.
@@ -87,7 +87,7 @@ libraries. It is the equivalent of the following shell commands:
                  "Couldn't detect what branch you're on. Is Doom detached?")))
 
       ;; We assume that a dirty .emacs.d is intentional and abort
-      (when-let (dirty (doom-upgrade--working-tree-dirty-p default-directory))
+      (when-let* ((dirty (doom-upgrade--working-tree-dirty-p default-directory)))
         (if (not force-p)
             (user-error "%s\n\n%s\n\n %s"
                         (format "Refusing to upgrade because %S has been modified."
@@ -102,10 +102,10 @@ libraries. It is the equivalent of the following shell commands:
       (sh! "git" "branch" "-D" target-remote)
       (sh! "git" "remote" "remove" doom-upgrade-remote)
       (unwind-protect
-          (let (result)
+          (progn
             (or (zerop (car (sh! "git" "remote" "add" doom-upgrade-remote doom-upgrade-url)))
                 (error "Failed to add %s to remotes" doom-upgrade-remote))
-            (or (zerop (car (setq result (sh! "git" "fetch" "--force" "--tags" doom-upgrade-remote (format "%s:%s" branch target-remote)))))
+            (or (zerop (car (sh! "git" "fetch" "--force" "--tags" doom-upgrade-remote (format "%s:%s" branch target-remote))))
                 (error "Failed to fetch from upstream"))
 
             (let ((this-rev (cdr (sh! "git" "rev-parse" "HEAD")))

@@ -8,19 +8,16 @@
 (defcustom doom-first-input-hook ()
   "Transient hooks run before the first user input."
   :type 'hook
-  :local 'permanent-local
   :group 'doom)
 
 (defcustom doom-first-file-hook ()
   "Transient hooks run before the first interactively opened file."
   :type 'hook
-  :local 'permanent-local
   :group 'doom)
 
 (defcustom doom-first-buffer-hook ()
   "Transient hooks run before the first interactively opened buffer."
   :type 'hook
-  :local 'permanent-local
   :group 'doom)
 
 
@@ -87,10 +84,11 @@
 ;; when it's idle. However, if the idle delay is too long, we run the risk of
 ;; runaway memory usage in busy sessions. And if it's too low, then we may as
 ;; well not be using gcmh at all.
-(setq gcmh-idle-delay 'auto  ; default is 15s
-      gcmh-auto-idle-delay-factor 10
-      gcmh-high-cons-threshold (* 64 1024 1024))  ; 64mb
-(add-hook 'doom-first-buffer-hook #'gcmh-mode)
+(unless (featurep 'igc)
+  (setq gcmh-idle-delay 'auto  ; default is 15s
+        gcmh-auto-idle-delay-factor 10
+        gcmh-high-cons-threshold (* 64 1024 1024))  ; 64mb
+  (add-hook 'doom-first-buffer-hook #'gcmh-mode))
 
 
 ;;; Disable UI elements early
@@ -191,7 +189,7 @@ sub-packages. For example, `org' is comprised of many packages, and might be
 broken up into:
 
   (doom-load-packages-incrementally
-   '(calendar find-func format-spec org-macs org-compat
+   \\='(calendar find-func format-spec org-macs org-compat
      org-faces org-entities org-list org-pcomplete org-src
      org-footnote org-macro ob org org-clock org-agenda
      org-capture))
@@ -229,14 +227,14 @@ afterwards."
         (let ((req (pop packages))
               idle-time)
           (if (featurep req)
-              (doom-log "start:iloader: Already loaded %s (%d left)" req (length packages))
+              (doom-log 2 "start:iloader: Already loaded %s (%d left)" req (length packages))
             (condition-case-unless-debug e
                 (and
                  (or (null (setq idle-time (current-idle-time)))
                      (< (float-time idle-time) first-idle-timer)
                      (not
                       (while-no-input
-                        (doom-log "start:iloader: Loading %s (%d left)" req (length packages))
+                        (doom-log 2 "start:iloader: Loading %s (%d left)" req (length packages))
                         ;; If `default-directory' doesn't exist or is
                         ;; unreadable, Emacs throws file errors.
                         (let ((default-directory doom-emacs-dir)
@@ -250,7 +248,7 @@ afterwards."
                (message "Error: failed to incrementally load %S because: %s" req e)
                (setq packages nil)))
             (if (null packages)
-                (doom-log "start:iloader: Finished!")
+                (doom-log 2 "start:iloader: Finished!")
               (run-at-time (if idle-time
                                doom-incremental-idle-timer
                              first-idle-timer)
@@ -293,7 +291,7 @@ If RETURN-P, return the message as a string instead of displaying it."
 ;;      and ~/_emacs) -- and spare us the IO of searching for them, and allows
 ;;      savvy hackers to use $EMACSDIR as their $DOOMDIR, if they wanted.
 ;;   3. Cut down on unnecessary logic in Emacs' bootstrapper.
-;;   4. TODO Offer a more user-friendly error state/screen, especially for
+;;   4. TODO: Offer a more user-friendly error state/screen, especially for
 ;;      errors emitted from Doom's core or the user's config.
 (define-advice startup--load-user-init-file (:override (&rest _) init-doom 100)
   (let ((debug-on-error-from-init-file nil)

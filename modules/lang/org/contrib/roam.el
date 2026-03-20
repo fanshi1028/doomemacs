@@ -75,7 +75,7 @@ inserting the link."
   (add-to-list 'org-roam-node-template-prefixes '("doom-tags" . "#"))
   (add-to-list 'org-roam-node-template-prefixes '("doom-type" . "@"))
 
-  ;; REVIEW Remove when addressed upstream. See org-roam/org-roam#2066.
+  ;; REVIEW: Remove when addressed upstream. See org-roam/org-roam#2066.
   (defadvice! +org--roam-fix-completion-width-for-vertico-a (fn &rest args)
     "Fixes completion candidate width for vertico users."
     :around #'org-roam-node-read--to-candidate
@@ -92,7 +92,7 @@ inserting the link."
     org-id-link-to-org-use-id +org-roam-link-to-org-use-id)
 
   ;; Normally, the org-roam buffer won't open until `org-roam-buffer-toggle' is
-  ;; explicitly called. If `+org-roam-open-buffer-on-find-file' is non-nil, the
+  ;; explicitly called. If `+org-roam-auto-backlinks-buffer' is non-nil, the
   ;; org-roam buffer will automatically open whenever a file in
   ;; `org-roam-directory' is visited and closed when no org-roam buffers remain.
   (add-hook! 'org-roam-find-file-hook :append
@@ -109,7 +109,7 @@ inserting the link."
   (add-hook 'org-roam-mode-hook #'turn-on-visual-line-mode)
 
   ;; Use a 'roam:X' link's description if X is empty.
-  ;; TODO PR this upstream?
+  ;; REVIEW: PR this upstream?
   (advice-add #'org-roam-link-follow-link :filter-args #'org-roam-link-follow-link-with-description-a)
   (advice-add #'org-roam-link-replace-at-point :override #'org-roam-link-replace-at-point-a)
 

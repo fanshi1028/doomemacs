@@ -47,7 +47,7 @@
      epa-file-encrypt-to
      (or (default-value 'epa-file-encrypt-to)
          (unless (string-empty-p user-full-name)
-           (when-let (context (ignore-errors (epg-make-context)))
+           (when-let* ((context (ignore-errors (epg-make-context))))
              (cl-loop for key in (epg-list-keys context user-full-name 'public)
                       for subkey = (car (epg-key-sub-key-list key))
                       if (not (memq 'disabled (epg-sub-key-capability subkey)))
@@ -251,7 +251,7 @@
                         python-mode-map)
                     (kbd "DEL") nil))
       ;; Interferes with the def snippet in doom-snippets
-      ;; TODO Fix this upstream, in doom-snippets, instead
+      ;; TODO: Fix this upstream, in doom-snippets, instead
       (setq sp-python-insert-colon-in-function-definitions nil))))
 
 
@@ -273,16 +273,15 @@
 ;;  e) do none of this when inside a string
 (advice-add #'delete-backward-char :override #'+default--delete-backward-char-a)
 
-;; HACK Makes `newline-and-indent' continue comments (and more reliably).
-;;      Consults `doom-point-in-comment-p' to detect a commented region and uses
-;;      that mode's `comment-line-break-function' to continue comments.  If
-;;      neither exists, it will fall back to the normal behavior of
-;;      `newline-and-indent'.
+;; HACK: Makes `newline-and-indent' continue comments (and more reliably).
+;;   Consults `doom-point-in-comment-p' to detect a commented region and uses
+;;   that mode's `comment-line-break-function' to continue comments.  If neither
+;;   exists, it will fall back to the normal behavior of `newline-and-indent'.
 ;;
-;;      We use an advice here instead of a remapping because many modes define
-;;      and remap to their own newline-and-indent commands, and tackling all
-;;      those cases was judged to be more work than dealing with the edge cases
-;;      on a case by case basis.
+;;   We use an advice here instead of a remapping because many modes define and
+;;   remap to their own newline-and-indent commands, and tackling all those
+;;   cases was judged to be more work than dealing with the edge cases on a case
+;;   by case basis.
 (defadvice! +default--newline-indent-and-continue-comments-a (&rest _)
   "A replacement for `newline-and-indent'.
 Continues comments if executed from a commented line."
@@ -460,12 +459,12 @@ Continues comments if executed from a commented line."
 
   ;; A Doom convention where C-s on popups and interactive searches will invoke
   ;; ivy/helm/vertico for their superior filtering.
-  (when-let (command (cond ((modulep! :completion ivy)
-                            #'counsel-minibuffer-history)
-                           ((modulep! :completion helm)
-                            #'helm-minibuffer-history)
-                           ((modulep! :completion vertico)
-                            #'consult-history)))
+  (when-let* ((command (cond ((modulep! :completion ivy)
+                              #'counsel-minibuffer-history)
+                             ((modulep! :completion helm)
+                              #'helm-minibuffer-history)
+                             ((modulep! :completion vertico)
+                              #'consult-history))))
     (define-key!
       :keymaps (append +default-minibuffer-maps
                        (when (modulep! :editor evil +everywhere)
@@ -544,9 +543,9 @@ Continues comments if executed from a commented line."
           :gi "TAB" cmds-tab
           :gi [tab] cmds-tab))
 
-  ;; Smarter C-a/C-e for both Emacs and Evil. C-a will jump to indentation.
-  ;; Pressing it again will send you to the true bol. Same goes for C-e, except
-  ;; it will ignore comments+trailing whitespace before jumping to eol.
+  ;; Smarter readline keybinds (C-a/C-e) for both Emacs and Evil. Changes C-a to
+  ;; also cycle between true BOL and BOI (indentation). Same for C-e, but with
+  ;; EOL and EOI (ignoring comments+trailing whitespace).
   (map! :gi "C-a" #'doom/backward-to-bol-or-indent
         :gi "C-e" #'doom/forward-to-last-non-comment-or-eol
         ;; Standardizes the behavior of modified RET to match the behavior of
@@ -559,12 +558,9 @@ Continues comments if executed from a commented line."
         ;; C-<mouse-scroll-down> = text scale decrease
         [C-down-mouse-2] (cmd! (text-scale-set 0))
 
-        ;; auto-indent on newline by default
-        :gi [remap newline] #'newline-and-indent
-        ;; insert literal newline
-        :i  "S-RET"         #'+default/newline
-        :i  [S-return]      #'+default/newline
-        :i  "C-j"           #'+default/newline
+        ;; Do opposite of `electric-indent-mode'
+        :i "S-RET"         #'electric-newline-and-maybe-indent
+        :i [S-return]      #'electric-newline-and-maybe-indent
 
         ;; Add new item below current (without splitting current line).
         :gi "C-RET"         #'+default/newline-below
@@ -595,8 +591,9 @@ Continues comments if executed from a commented line."
         :prefix doom-leader-key     "u" #'universal-argument-more
         :prefix doom-leader-alt-key "u" #'universal-argument-more)
 
-  (when (modulep! +bindings)
-    (load! "+evil-bindings")))
+  (unless (doom-context-p 'reload)
+    (when (modulep! +bindings)
+      (load! "+evil-bindings"))))
 
  (t
   (add-hook 'doom-first-buffer-hook #'delete-selection-mode)
@@ -619,6 +616,7 @@ Continues comments if executed from a commented line."
       (when (memq last-command '(er/expand-region er/contract-region))
         (er/contract-region 0))))
 
-  (when (modulep! +bindings)
-    (require 'projectile nil t) ; we need its keybinds immediately
-    (load! "+emacs-bindings"))))
+  (unless (doom-context-p 'reload)
+    (when (modulep! +bindings)
+      (require 'projectile nil t) ; we need its keybinds immediately
+      (load! "+emacs-bindings")))))

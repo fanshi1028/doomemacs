@@ -123,8 +123,8 @@ It may not be obvious to users what they should do for some straight prompts,
 so Doom will recommend the one that reverts a package back to its (or target)
 original state.")
 
-;; HACK Remove dired & magit options from prompt, since they're inaccessible in
-;;      noninteractive sessions.
+;; HACK: Remove dired & magit options from prompt, since they're inaccessible in
+;;   noninteractive sessions.
 (advice-add #'straight-vc-git--popup-raw :override #'straight--popup-raw)
 
 ;; HACK: `native-comp' only respects `native-comp-jit-compilation-deny-list'
@@ -152,8 +152,8 @@ original state.")
                             file-list)
              recursively load selector)))
 
-;; HACK Replace GUI popup prompts (which hang indefinitely in tty Emacs) with
-;;      simple prompts.
+;; HACK: Replace GUI popup prompts (which hang indefinitely in tty Emacs) with
+;;   simple prompts.
 (defadvice! doom-straight--fallback-to-y-or-n-prompt-a (fn &optional prompt noprompt?)
   :around #'straight-are-you-sure
   (or noprompt?
@@ -179,9 +179,9 @@ original state.")
   (and (bound-and-true-p doom-cli--context)
        (doom-cli-context-suppress-prompts-p doom-cli--context)))
 
-(defadvice! doom-straight--fallback-to-tty-prompt-a (fn prompt actions)
+(defadvice! doom-straight--fallback-to-tty-prompt-a (prompt actions)
   "Modifies straight to prompt on the terminal when in noninteractive sessions."
-  :around #'straight--popup-raw
+  :override #'straight--popup-raw
   (if (bound-and-true-p async-in-child-emacs)
       (error "Straight prompt: %s" prompt)
     (let ((doom-straight--auto-options doom-straight--auto-options))
@@ -231,7 +231,7 @@ original state.")
                                         ", ")
                              (if (not recommended) ""
                                (format "; don't know? Pick %d" (1+ recommended)))))
-                   answer fn)
+                   answer)
               (while (null (nth (setq answer (1- (read-number prompt))) options))
                 (print! (warn "%s is not a valid answer, try again.") answer))
               (funcall (nth answer options)))))))))

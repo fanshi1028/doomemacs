@@ -13,9 +13,9 @@
            ;;   and org-loaddefs.el, but Straight doesn't invoke this step, and
            ;;   the former doesn't work if the Org repo is a shallow clone.
            ;;   Rather than impose the network burden of a full clone (and other
-           ;;   redundant work in Org's makefile), I'd rather fake these files
-           ;;   instead. Besides, Straight already produces a org-autoloads.el,
-           ;;   so org-loaddefs.el isn't needed.
+           ;;   redundant and platform unagnostic work in Org's makefile), I'd
+           ;;   rather fake these files instead. Besides, Straight already
+           ;;   produces a org-autoloads.el, so org-loaddefs.el isn't needed.
            :build t
            :pre-build
            (progn
@@ -30,12 +30,23 @@
                  (insert (format "(defun org-release () %S)\n" version)
                          (format "(defun org-git-version (&rest _) \"%s-??-%s\")\n"
                                  version (cdr (doom-call-process "git" "rev-parse" "--short" "HEAD")))
-                         "(provide 'org-version)\n")))))
-  :pin "b7bc0ede67f3e2a477f4d6ad0c46a6d80bca5aea")  ; release_9.7.39
+                         "(provide 'org-version)\n"))))
+           ;; HACK: Org is hardcoded (with file-local variables) to spew some of
+           ;;   its autoloads into org-loaddefs.el file (that is never loaded or
+           ;;   subsumed into Doom's package autoloads), while the rest go into
+           ;;   org-autoloads.el, so we have to manually merge them.
+           ;; REVIEW: Fix this upstream?
+           :post-build
+           (let ((afile (straight--autoloads-file "org")))
+             (with-temp-file afile
+               (insert-file-contents "org-loaddefs.el")
+               (save-excursion (insert "\n"))
+               (insert-file-contents afile))))
+  :pin "89df5bf46ba214db44eea898cc7cacc0b27fd760")  ; release_9.8
 (package! org-contrib
   :recipe (:host github
            :repo "emacsmirror/org-contrib")
-  :pin "90e1d6bd6288615233dae273f0525a43a9d8779d")
+  :pin "b840bdabd1867f9d51ee36bef7bac4be7073288c")  ; release_0.8
 
 (package! avy)
 (package! htmlize :pin "fa644880699adea3770504f913e6dddbec90c076")
@@ -43,67 +54,44 @@
 (package! toc-org :pin "6d3ae0fc47ce79b1ea06cabe21a3c596395409cd")
 (package! org-cliplink :pin "13e0940b65d22bec34e2de4bc8cba1412a7abfbc")
 
-;; TODO Adjust when this is added to GNU ELPA
-(when (modulep! +contacts)
-  (package! org-contacts
-    :recipe (:host github :repo "doomelpa/org-contacts")
-    :pin "b06a59736800865b8a7e8d6d45774169cb31528a"))
-
 (when (and (featurep :system 'macos)
            (modulep! :os macos))
   (package! org-mac-link :pin "e30171a6e98db90787ab8a23b3a7dc4fd13b10f9"))
-
-(when (modulep! +passwords)
-  (package! org-passwords
-    :pin "61584aa701defcc0c435d3e7552916235cb655a6"
-    :recipe (:host github
-             :repo "alfaromurillo/org-passwords.el")))
 
 (when (modulep! :editor evil +everywhere)
   (package! evil-org
     :recipe (:host github :repo "doomelpa/evil-org-mode")
     :pin "06518c65ff4f7aea2ea51149d701549dcbccce5d"))
-(when (modulep! :tools pdf)
-  (package! org-pdftools :pin "2b3357828a4c2dfba8f87c906d64035d8bf221f2"))
-(when (modulep! :tools magit)
-  (package! orgit :pin "e0b3fca9f328065af52b81a619445b6a45a3ab25")
-  (when (modulep! :tools magit +forge)
-    (package! orgit-forge :pin "15f8e91083969117cb14521b9b8b9e7af2016771")))
 (when (modulep! +dragndrop)
   (package! org-download :pin "c8be2611786d1d8d666b7b4f73582de1093f25ac"))
 (when (modulep! +gnuplot)
   (package! gnuplot :pin "4c6b18f71ff7604e2640033207f5a882ddce78af")
   (package! gnuplot-mode :pin "601f6392986f0cba332c87678d31ae0d0a496ce7"))
 (when (modulep! +jupyter)
-  (package! jupyter :pin "de89cbeca890db51ba84aee956658f89aaa0b642"))
+  (package! jupyter :pin "242fdc709ce0faa3b9ee81dcc48cfd791898e6b8"))
 (when (modulep! +journal)
   (package! org-journal :pin "831ecfd50a29057c239b9fa55ebc02d402a6d4a7"))
 (when (modulep! +noter)
-  (package! org-noter :pin "aafa08a49c4c3311d9b17864629aceeff02d33da"))
-(when (modulep! +pomodoro)
-  (package! org-pomodoro :pin "3f5bcfb80d61556d35fc29e5ddb09750df962cc6"))
+  (package! org-noter :pin "81765d267e51efd8b4f5b7276000332ba3eabbf5"))
 (when (modulep! +pretty)
-  (package! org-modern :pin "55b5bbeb1eb9483d0cb43f4803615c380bf3b1ed")
+  (package! org-modern :pin "f514a2570da0f7a8ff0d72641458dbcf96ccf702")
   (package! org-appear :pin "32ee50f8fdfa449bbc235617549c1bccb503cb09"))
 (when (modulep! +present)
   (package! centered-window
     :recipe (:host github :repo "nullvec/centered-window-mode")
     :pin "701f56cd1d2b68352d29914f05ca1b0037bb2595")
   (package! org-tree-slide :pin "e2599a106a26ce5511095e23df4ea04be6687a8a")
-  (package! org-re-reveal :pin "72c24637820f9dafa96d4ad23a0802c47de7651e")
+  (package! org-re-reveal :pin "8245facfdca168a728f3761d863af28ee05af171")
   (package! revealjs
     :recipe (:host github :repo "hakimel/reveal.js"
              :files ("css" "dist" "js" "plugin"))
-    :pin "33bfe3b233f1a840cd70e834b609ec6f04494a40"))
+    :pin "8d9120f8abf159670e9ddcb1e802ce29c0aea6eb"))
 (when (or (modulep! +roam)
           (modulep! +roam2))
-  (package! org-roam :pin "b2634a17f8b6f30b332774ed18b165966bd11906"))
+  (package! org-roam :pin "7cd906b6f8b18a21766228f074aff24586770934"))
 
 ;;; Babel
 (package! ob-async :pin "9aac486073f5c356ada20e716571be33a350a982")
-(when (modulep! :lang clojure)
-  (package! ob-clojure-literate
-    :pin "18c3ea15b872a43e67c899a9914182c35b00b7ee"))
 (when (modulep! :lang crystal)
   (package! ob-crystal :pin "d84c1adee4b269cdba06a97caedb8071561a09af"))
 (when (modulep! :lang elixir)
@@ -135,10 +123,6 @@
 
 ;;; Export
 (when (modulep! +pandoc)
-  (package! ox-pandoc :pin "5766c70b6db5a553829ccdcf52fcf3c6244e443d"))
-(when (modulep! +hugo)
-  (package! ox-hugo
-    :recipe (:host github :repo "kaushalmodi/ox-hugo" :nonrecursive t)
-    :pin "b7dc44dc28911b9d8e3055a18deac16c3b560b03"))
+  (package! ox-pandoc :pin "1caeb56a4be26597319e7288edbc2cabada151b4"))
 (when (modulep! :lang rst)
   (package! ox-rst :pin "b73eff187eebac24b457688bfd27f09eff434860"))

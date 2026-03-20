@@ -1,9 +1,6 @@
 ;;; config/default/autoload/text.el -*- lexical-binding: t; -*-
 
 ;;;###autoload
-(defalias '+default/newline #'electric-indent-just-newline)
-
-;;;###autoload
 (defun +default/newline-above ()
   "Insert an indented new line before the current one."
   (interactive)
@@ -27,7 +24,7 @@
   "Interactively select what text to insert from the kill ring."
   (interactive)
   (call-interactively
-   (cond ((fboundp 'consult-yank-pop)    #'consult-yank-pop) ;HACK see @ymarco's comment on #5013 and TODO.org in the selecturm module.
+   (cond ((fboundp 'consult-yank-pop)    #'consult-yank-pop) ; HACK: see @ymarco's comment on #5013
          ((fboundp 'counsel-yank-pop)    #'counsel-yank-pop)
          ((fboundp 'helm-show-kill-ring) #'helm-show-kill-ring)
          ((error "No kill-ring search backend available. Enable ivy, helm or vertico!")))))

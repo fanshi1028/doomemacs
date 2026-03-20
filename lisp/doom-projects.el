@@ -170,7 +170,7 @@ And if it's a function, evaluate it."
            ((when-let*
                 ((doom-fd-executable)
                  (projectile-git-use-fd)
-                 ;; REVIEW Temporary fix for #6618. Improve me later.
+                 ;; REVIEW: Temporary fix for #6618. Improve me later.
                  (version (with-memoization (get 'doom-fd-executable 'version)
                             (cadr (split-string (cdr (doom-call-process doom-fd-executable "--version"))
                                                 " " t))))
@@ -234,7 +234,7 @@ state are passed in.")
                                      on-exit)
   "Define a project minor mode named NAME and where/how it is activated.
 
-Project modes allow you to configure 'sub-modes' for major-modes that are
+Project modes allow you to configure \\='sub-modes' for major-modes that are
 specific to a folder, project structure, framework or whatever arbitrary context
 you define. These project modes can have their own settings, keymaps, hooks,
 snippets, etc.

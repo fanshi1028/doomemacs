@@ -21,7 +21,7 @@
         eglot-code-action-indications '(eldoc-hint))
 
   :config
-  (set-popup-rule! "^\\*eglot-help" :size 0.15 :quit t :select t)
+  (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select t)
   (set-lookup-handlers! 'eglot--managed-mode
     :definition      #'xref-find-definitions
     :references      #'xref-find-references
@@ -33,14 +33,12 @@
   (when (modulep! :checkers syntax -flymake)
     (add-to-list 'eglot-stay-out-of 'flymake))
 
-  ;; NOTE: This setting disable the eglot-events-buffer enabling more consistent
-  ;;   performance on long running emacs instance. Default is 2000000 lines.
-  ;;   After each new event the whole buffer is pretty printed which causes
-  ;;   steady performance decrease over time. CPU is spent on pretty priting and
-  ;;   Emacs GC is put under high pressure.
+  ;; PERF: Disable the eglot-events-buffer, so Emacs doesn't churn GC and CPU
+  ;;   cycles on pretty-printing the events buffer in the background (once it
+  ;;   reaches max size). Enable debug mode to restore the events buffer.
   (cl-callf plist-put eglot-events-buffer-config :size 0)
 
-  (set-debug-variable! 'eglot-events-buffer-config '(:size 2000000 :format full))
+  (set-debug-var! 'eglot-events-buffer-config '(:size 2000000 :format full))
 
   (defadvice! +lsp--defer-server-shutdown-a (fn &optional server)
     "Defer server shutdown for a few seconds.

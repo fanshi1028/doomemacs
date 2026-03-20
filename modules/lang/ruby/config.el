@@ -23,7 +23,6 @@
     (add-hook 'ruby-mode-local-vars-hook #'lsp! 'append))
 
   (after! inf-ruby
-    (add-hook 'inf-ruby-mode-hook #'doom-mark-buffer-as-real-h)
     ;; switch to inf-ruby from compile if we detect a breakpoint has been hit
     (add-hook 'compilation-filter-hook #'inf-ruby-auto-enter))
 
@@ -117,7 +116,7 @@
   (when (modulep! :editor evil)
     (add-hook 'rspec-mode-hook #'evil-normalize-keymaps))
   :config
-  (set-popup-rule! "^\\*\\(rspec-\\)?compilation" :size 0.3 :ttl nil :select t)
+  (set-popup-rule! "^\\*\\(rspec-\\)compilation" :size 0.3 :ttl nil :select t)
   (setq rspec-use-rvm (executable-find "rvm"))
   (map! :localleader
         :prefix "t"

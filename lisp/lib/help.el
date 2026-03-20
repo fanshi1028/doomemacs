@@ -93,7 +93,13 @@ the current major-modea.")
   "Get information on an active minor mode. Use `describe-minor-mode' for a
 selection of all minor-modes, active or not."
   (interactive
-   (list (completing-read "Describe active mode: " (doom-active-minor-modes))))
+   (list
+    (completing-read
+     "Describe active mode: "
+     (lambda (str pred action)
+       (if (eq action 'metadata) ; for embark/marginalia
+           `(metadata (category . minor-mode))
+         (complete-with-action action (doom-active-minor-modes) str pred))))))
   (let ((symbol
          (cond ((stringp mode) (intern mode))
                ((symbolp mode) mode)
@@ -109,7 +115,7 @@ selection of all minor-modes, active or not."
    (list (if current-prefix-arg
              (save-window-excursion
                (message "Click what to describe...")
-               (or (when-let ((evt (read--potential-mouse-event)))
+               (or (when-let* ((evt (read--potential-mouse-event)))
                      ;; Discard mouse release event
                      (read--potential-mouse-event)
                      (cadr evt))
@@ -170,7 +176,7 @@ selection of all minor-modes, active or not."
 (defvar ivy-sort-functions-alist)
 ;;;###autoload
 (cl-defun doom-completing-read-org-headings
-    (prompt files &rest plist &key depth mindepth include-files initial-input extra-candidates action)
+    (prompt files &rest plist &key _depth _mindepth _include-files initial-input extra-candidates action)
   "TODO"
   (let ((alist
          (append (apply #'doom--org-headings files plist)
@@ -329,7 +335,7 @@ without needing to check if they are available."
           (autodef
            (completing-read
             "Describe setter: "
-            ;; TODO Could be cleaner (refactor me!)
+            ;; REVIEW: Could be cleaner (refactor me!)
             (cl-loop with maxwidth = (apply #'max (mapcar #'length (mapcar #'symbol-name settings)))
                      for def in (sort settings #'string-lessp)
                      if (get def 'doom-module)
@@ -379,14 +385,14 @@ without needing to check if they are available."
              (unless (eq (char-after) ?\()
                (backward-char))
              (let ((sexp (sexp-at-point)))
-               ;; DEPRECATED `featurep!'
+               ;; DEPRECATED: `featurep!' is deprecated
                (when (memq (car-safe sexp) '(featurep! modulep! require!))
                  (format "%s %s" (nth 1 sexp) (nth 2 sexp)))))))
         ((when buffer-file-name
-           (when-let (mod (doom-module-from-path buffer-file-name))
+           (when-let* ((mod (doom-module-from-path buffer-file-name)))
              (unless (memq (car mod) '(:doom :user))
                (format "%s %s" (car mod) (cdr mod))))))
-        ((when-let (mod (cdr (assq major-mode doom--help-major-mode-module-alist)))
+        ((when-let* ((mod (cdr (assq major-mode doom--help-major-mode-module-alist))))
            (format "%s %s"
                    (symbol-name (car mod))
                    (symbol-name (cadr mod)))))))
@@ -395,7 +401,7 @@ without needing to check if they are available."
 (defun doom/help-modules (category module &optional visit-dir)
   "Open the documentation for a Doom module.
 
-CATEGORY is a keyword and MODULE is a symbol. e.g. :editor and 'evil.
+CATEGORY is a keyword and MODULE is a symbol. e.g. :editor and \\='evil.
 
 If VISIT-DIR is non-nil, visit the module's directory rather than its
 documentation.
@@ -551,7 +557,7 @@ If prefix arg is present, refresh the cache."
                                           (format "total %d" (length packages))))
                           packages nil t nil nil
                           (when guess (symbol-name guess))))))))
-  ;; TODO Refactor me.
+  ;; REVIEW: Refactor me.
   (doom-initialize-packages)
   (help-setup-xref (list #'doom/help-packages package)
                    (called-interactively-p 'interactive))
@@ -729,7 +735,6 @@ config blocks in your private config."
 
 (defvar counsel-rg-base-command)
 (defun doom--help-search (dirs query prompt)
-  ;; REVIEW Replace with deadgrep
   (unless doom-ripgrep-executable
     (user-error "Can't find ripgrep on your system"))
   (cond ((fboundp 'consult--grep)
@@ -741,7 +746,7 @@ config blocks in your private config."
                             (concat "%s " (mapconcat #'shell-quote-argument dirs " ")))
                   (append counsel-rg-base-command dirs))))
            (counsel-rg query nil "-Lz" (concat prompt ": "))))
-        ;; () TODO Helm support?
+        ;; TODO: Helm support?
         ((grep-find
           (string-join
            (append (list doom-ripgrep-executable

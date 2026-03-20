@@ -9,16 +9,15 @@
   org-download-clipboard
   org-download-dnd-base64
   :init
-  ;; HACK We add these manually so that org-download is truly lazy-loaded
-  (pushnew! dnd-protocol-alist
-            '("^\\(?:https?\\|ftp\\|file\\|nfs\\):" . org-download-dnd)
-            '("^data:" . org-download-dnd-base64))
+  ;; HACK: We add these manually so that org-download is truly lazy-loaded
+  (add-to-list 'dnd-protocol-alist '("^data:" . org-download-dnd-base64))
+  (add-to-list 'dnd-protocol-alist '("^\\(?:https?\\|ftp\\|file\\|nfs\\):" . org-download-dnd))
   (advice-add #'org-download-enable :override #'ignore)
 
   (after! org
     ;; A shorter link to attachments
     (+org-define-basic-link "download" (lambda () (or org-download-image-dir org-attach-id-dir "."))
-      :image-data-fun #'+org-image-file-data-fn
+      :preview #'+org-link-preview-attachment-fn
       :requires 'org-download))
   :config
   (unless org-download-image-dir
@@ -44,7 +43,7 @@
             ;; Handle non-image files a little differently. Images should be
             ;; inserted as normal with previews. Other files, like pdfs or zips,
             ;; should be linked to, with an icon indicating the type of file.
-            (format (concat (unless (image-type-from-file-name filename)
+            (format (concat (unless (image-supported-file-p filename)
                               (concat (+org-attach-icon-for filename)
                                       " "))
                             org-download-link-format)

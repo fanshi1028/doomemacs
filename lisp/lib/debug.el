@@ -27,7 +27,7 @@
 
 ;;;###autoload
 (progn
-  (cl-defun set-debug-variable! (var &optional (debug-val t) (level 1))
+  (cl-defun set-debug-var! (var &optional (debug-val t) (level 1))
     "Set VAR to DEBUG-VAL (or `t') when `doom-debug-mode' is active at >=LEVEL."
     (setf (alist-get var doom-debug--variables) (cons debug-val level))))
 
@@ -57,10 +57,7 @@
         ((add-to-list 'doom-debug--unbound-variables (cons spec t)))))
 
 (defun doom-debug--timestamped-message-a (format-string &rest _args)
-  "Advice to run before `message' that prepends a timestamp to each message.
-
-Activate this advice with:
-(advice-add 'message :before 'doom-debug--timestamped-message-a)"
+  "Advice to run before `message' that prepends a timestamp to each message."
   (when (and (stringp format-string)
              message-log-max  ; if nil, logging is disabled
              (not (equal format-string "%s%s"))
@@ -83,6 +80,7 @@ Activate this advice with:
 (define-minor-mode doom-debug-mode
   "Toggle `debug-on-error' and `init-file-debug' for verbose logging."
   :global t
+  :group 'doom
   (when (or doom-debug-mode
             (and (integerp current-prefix-arg)
                  (> current-prefix-arg 0)))
@@ -372,7 +370,7 @@ FILL-COLUMN determines the column at which lines will be broken."
     (let ((doom-print-backend (unless nocolor doom-print-backend))
           (doom-print-indent 0))
       (dolist (spec (cl-remove-if-not #'cdr (doom-info)) (buffer-string))
-        ;; FIXME Refactor this horrible cludge, either here or in `format!'
+        ;; REVIEW: Refactor this horrible cludge, either here or in `format!'
         (insert! ((bold "%-10s ") (symbol-name (car spec)))
                  ("%s\n"
                   (string-trim-left
@@ -406,7 +404,7 @@ FILL-COLUMN determines the column at which lines will be broken."
                             "git" "-C" (expand-file-name doom-emacs-dir)
                             "log" "-1" "--format=%D %h %ci"))
                       "n/a"))
-          ;; NOTE This is a placeholder. Our modules will be moved to its own
+          ;; NOTE: This is a placeholder. Our modules will be moved to its own
           ;;   repo eventually, and Doom core will later be capable of managing
           ;;   them like package sources.
           (format "%-13s v%-15s %s"

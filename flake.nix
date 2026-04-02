@@ -52,6 +52,7 @@
               poppler-utils
               tree
               fd
+              pngpaste
               (
                 let
                   pname = "pi-acp";
